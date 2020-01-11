@@ -1,0 +1,13 @@
+//Login Api
+POST http://192.168.1.18:3000/user_login HTTP/1.1
+Content-Type: application/json
+
+{"user_name":"frank","password":"123456"}
+
+###
+//List by nearby
+GET http://192.168.1.18:3000/user_nearby?user_name=frank&type=near_me HTTP/1.1
+
+###
+//List by nearby
+GET http://192.168.1.18:3000/user_nearby?user_name=frank&type=coordinated&lat=11.031701&lon=77.018739 HTTP/1.1
