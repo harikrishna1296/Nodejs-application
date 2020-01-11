@@ -1,4 +1,24 @@
 const md5 = require('md5')
+const multer = require('multer');
+const path = require('path')
+const fs = require('fs')
+const csv = require('csv-parser');
+
+
+const storage = multer.diskStorage({
+    fileFilter : function(req,file,callback){
+        file.mimetype === 'text/csv' ? callback(null, true) : callback(null, false)
+    },
+    destination: function (req, file, callback) {
+        file.mimetype === 'text/csv' ? callback(null, './upload') : callback(null, false)
+    },
+    filename: function (req, file, callback) {
+      callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+  });
+
+
+const upload = multer({ storage : storage }).array('file',2);
 
 //User Login
 exports.user_login = async function(req,res){
@@ -34,11 +54,18 @@ exports.user_nearby = async function(req,res){
     let res_send = {}
     let data = req.query;
     data.user_name = data.user_name.toLowerCase()
+    let a = ['near_me','coordinates']
+    if(a.indexOf(data.type)==-1){
+        res.json({message:"Invalid type",status:199})
+        return
+    }
     let coordinates = []
     if(data.type=='near_me'){
+        //Geo near based on User Coordinated
         let details = await req.app.locals.db.collection('user').find({username_url : data.user_name}).toArray()
         coordinates =  details[0].location.coordinates
     }else{
+        //Based on customised coordinates
         coordinates = [ parseFloat(data.lat) ,parseFloat(data.lon) ]
     }
     let aggregate = [
@@ -55,4 +82,29 @@ exports.user_nearby = async function(req,res){
     res_send.list = list;
     res_send.status = 200;
     res.json(res_send)
+}
+
+//Import csv
+exports.import_user = function(req,res){
+    upload(req,res,function(err) {
+        if(err){
+            console.log(err)
+        }
+        else{
+            req.files.forEach((e,index) => {
+                let total_list = [];
+                fs.createReadStream(e.path)
+                .pipe(csv())
+                .on('data', function(data){
+                    total_list.push(data)
+                })
+                .on('end',function(){
+                    fs.unlink(e.path, function (err) {
+                        if (err) throw err;
+                        console.log(total_list)
+                    }) 
+                });  
+            });
+        }
+    });
 }

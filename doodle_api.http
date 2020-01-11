@@ -10,4 +10,11 @@ GET http://localhost:3000/user_nearby?user_name=frank&type=near_me HTTP/1.1
 
 ###
 //List by nearby
-GET http://localhost:3000/user_nearby?user_name=frank&type=coordinated&lat=11.031701&lon=77.018739 HTTP/1.1
+GET http://localhost:3000/user_nearby?user_name=frank&type=coordinates&lat=11.031701&lon=77.018739 HTTP/1.1
+
+###
+//Import CSV 
+POST http://localhost:3000/import_user
+Content-Type: application/json
+
+{"date" : "file"}

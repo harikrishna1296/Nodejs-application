@@ -8,6 +8,7 @@ const session = require('express-session');
 app.use(cors());
 app.use(body_parser.json());
 app.use(session({secret: 'doodleblue',saveUninitialized: true,resave: true}));
+app.use(express.static(__dirname + '/upload'));
 
 
 require('./router_config')(app)
