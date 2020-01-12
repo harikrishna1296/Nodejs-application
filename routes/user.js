@@ -30,10 +30,15 @@ exports.user_login = async function(req,res){
     let user_name = data.user_name.toLowerCase()
     let list = await req.app.locals.db.collection('user').find({username_url:user_name,password:password}).toArray()
     //Setting session for 1 min 
-    session.cookie.expires = new Date(Date.now() + 60000)
-    session[user_name] = list[0]
-    res_send.user = list;
-    res_send.status = 200;
+    if(list.length>0){
+        session.cookie.expires = new Date(Date.now() + 60000)
+        session[user_name] = list[0]
+        res_send.message = "LoggedIn successfully";
+        res_send.status = 200;
+    }else{
+        res_send.message = "Incorrect username or password"
+        res_send.status = 199;
+    }
     res.json(res_send)
 }
 
