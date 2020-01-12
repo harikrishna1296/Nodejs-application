@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path')
 const fs = require('fs')
 const csv = require('csv-parser');
+const model = require('../model/user')
 
 
 const storage = multer.diskStorage({
@@ -18,7 +19,7 @@ const storage = multer.diskStorage({
   });
 
 
-const upload = multer({ storage : storage }).array('file',2);
+const upload = multer({ storage : storage }).array('file',5);
 
 //User Login
 exports.user_login = async function(req,res){
@@ -91,7 +92,8 @@ exports.import_user = function(req,res){
             console.log(err)
         }
         else{
-            req.files.forEach((e,index) => {
+            // let errors = [];
+            req.files.forEach(async(e,index) => {
                 let total_list = [];
                 fs.createReadStream(e.path)
                 .pipe(csv())
@@ -99,10 +101,16 @@ exports.import_user = function(req,res){
                     total_list.push(data)
                 })
                 .on('end',function(){
-                    fs.unlink(e.path, function (err) {
+                    fs.unlink(e.path,async function (err) {
                         if (err) throw err;
-                        console.log(total_list)
-                    }) 
+                        let result = await model.user_data(req.app.locals.db,total_list)
+                        if(result==199){
+                            res.json({'message':"Error in importing user",status:199})
+                        }
+                        if(index==(req.files.length-1)){
+                            res.json({'message':"User Imported successfully",status:200})
+                        }
+                    })
                 });  
             });
         }
