@@ -97,7 +97,7 @@ exports.import_user = function(req,res){
             console.log(err)
         }
         else{
-            // let errors = [];
+            let errors = [];
             req.files.forEach(async(e,index) => {
                 let total_list = [];
                 fs.createReadStream(e.path)
@@ -108,12 +108,15 @@ exports.import_user = function(req,res){
                 .on('end',function(){
                     fs.unlink(e.path,async function (err) {
                         if (err) throw err;
-                        let result = await model.user_data(req.app.locals.db,total_list)
-                        if(result==199){
+                        let result = await model.user_data(req.app.locals.db,total_list,index)
+                        if(result.status==199){
                             res.json({'message':"Error in importing user",status:199})
-                        }
+                        }else if(result.status==200){
+                            let err = result.errors
+                            errors = [...errors,...err]
+                        }   
                         if(index==(req.files.length-1)){
-                            res.json({'message':"User Imported successfully",status:200})
+                            res.json({'message':"User Imported successfully",status:200,errors : errors})
                         }
                     })
                 });  
