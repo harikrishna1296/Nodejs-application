@@ -42,6 +42,21 @@ exports.user_login = async function(req,res){
     res.json(res_send)
 }
 
+//Add user
+exports.add_user = async function(req,res){
+    let data = req.body;
+    let res_send = {}
+    data["location"] = { type: "Point", coordinates: [parseFloat(data.latitude), parseFloat(data.longitude)] };
+    data["username_url"] = (data.username).toLowerCase();
+    data['password'] = md5(data.password)
+    delete data.latitude
+    delete data.longitude
+    let result = await req.app.locals.db.collection('user').updateOne({username_url : data.username_url},{$set : data},{upsert : true})
+    res_send.message = "User added succesfullly"
+    res_send.status = 200
+    res.json(res_send)
+}
+
 //Session Check Middleware
 exports.session_middleware = async function(req,res,next){
     let data = req.query;

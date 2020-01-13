@@ -14,7 +14,7 @@ GET http://localhost:3000/user_nearby?user_name=frank&type=coordinates&lat=11.03
 
 ###
 //Import CSV 
-POST http://localhost:3000/import_user
+POST http://localhost:3000/add_user
 Content-Type: application/json
 
-{"date" : "file"}
+{"username":"user12","password":"123456","place" :"coimbatore1","latitude":"11.035991","longitude":"77.032448"}
