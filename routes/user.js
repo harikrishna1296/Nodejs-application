@@ -108,6 +108,9 @@ exports.user_nearby = async function(req,res){
 //Import csv
 exports.import_user = function(req,res){
     upload(req,res,function(err) {
+        if(req.files.length==0){
+            res.json({'message':"Kindly upload file",status:199})
+        }
         if(err){
             console.log(err)
         }
